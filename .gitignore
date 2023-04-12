@@ -2,3 +2,5 @@ weights/
 sync_files/
 ISL/
 CSL/
+*.pyc
+*.pyo
