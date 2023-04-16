@@ -27,24 +27,24 @@ def main():
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--verb-path", type=str, default=None)
     parser.add_argument("--jsl-path", type=str, default=None)
-    parser.add_argument("--image-file", type=str, default='')
+    parser.add_argument("--image-file", type=str, default='SWiG_jsons/test.json')
     parser.add_argument("--store-features", action="store_true", default=False)
 
     args = parser.parse_args()
 
-    if args.verb_path == None:
-        print('please input a path to the verb model weights')
-        return
-    if args.jsl_path == None:
-        print('please input a path to the jsl model weights')
-        return
-    if args.image_file == None:
-        print('please input a path to the image file')
-        return
+    # if args.verb_path == None:
+    #     print('please input a path to the verb model weights')
+    #     return
+    # if args.jsl_path == None:
+    #     print('please input a path to the jsl model weights')
+    #     return
+    # if args.image_file == None:
+    #     print('please input a path to the image file')
+    #     return
 
-    if args.store_features:
-        if not os.path.exists('local_features'):
-            os.makedirs('local_features')
+    # if args.store_features:
+    #     if not os.path.exists('local_features'):
+    #         os.makedirs('local_features')
 
     kwargs = {"num_workers": args.workers} if torch.cuda.is_available() else {}
     verbs = './global_utils/verb_indices.txt'
@@ -52,7 +52,7 @@ def main():
 
     print("initializing verb model")
 
-    test_dataset = imSituDatasetGood(verb_to_idx, args.image_file, inference=True, is_train=False)
+    test_dataset = imSituDatasetGood(verb_to_idx, json_file=args.image_file, inference=False, is_train=True)
     test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, **kwargs)
     model = ImsituVerb()
     model = torch.nn.DataParallel(model).cuda()

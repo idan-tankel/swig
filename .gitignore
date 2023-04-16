@@ -4,3 +4,8 @@ ISL/
 CSL/
 *.pyc
 *.pyo
+images_512/
+runs/
+resnet50-19c8e357.pth
+images_512
+.vscode/launch.json

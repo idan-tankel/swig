@@ -6,6 +6,7 @@ import torch
 import torch.optim as optim
 from torchvision import datasets, models, transforms
 from tensorboardX import SummaryWriter
+from torch.profiler import profile, record_function, ProfilerActivity
 import model
 from dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, UnNormalizer, Normalizer
 from torch.utils.data import Dataset, DataLoader
@@ -15,7 +16,6 @@ from global_utils.format_utils import cmd_to_title
 from global_utils import format_utils
 import sys
 print('CUDA available: {}'.format(torch.cuda.is_available()))
-print("new version")
 
 
 
@@ -103,9 +103,10 @@ def train(retinanet, optimizer, dataloader_train, parser, epoch_num, writer):
 		verbs = data['verb_idx'].cuda()
 		widths = data['widths'].cuda()
 		heights = data['heights'].cuda()
-
-		class_loss, reg_loss, bbox_loss, all_noun_loss = retinanet(image, annotations, verbs, widths, heights, epoch_num, deatch_resnet, use_gt_nouns)
-
+		with profile(activities=[ProfilerActivity.CUDA], record_shapes=True) as prof:
+			with record_function("model_inference"):
+				class_loss, reg_loss, bbox_loss, all_noun_loss = retinanet(image, annotations, verbs, widths, heights, epoch_num, deatch_resnet, use_gt_nouns)
+		print(prof.key_averages())
 		avg_class_loss += class_loss.mean().item()
 		avg_reg_loss += reg_loss.mean().item()
 		avg_bbox_loss += bbox_loss.mean().item()
